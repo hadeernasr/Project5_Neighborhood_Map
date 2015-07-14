@@ -1,0 +1,47 @@
+<!DOCTYPE>
+<html>
+<head>
+	<title>Neighborhood Map API Project</title>
+	<meta charset="utf8">
+	<link rel="stylesheet" type="text/css" href="css/style.css">
+
+	<script src="js/jQuery.js"></script>
+	<script src="js/knockout.js"></script>
+	<script src="js/script.js"></script>
+
+    <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&signed_in=true&libraries=places"></script>
+
+</head>
+<body>
+	<input id="autocomplete" class="controls" type="text" placeholder="Enter city name, then select hotel from list">
+	<div id="map-canvas"></div>
+	<div id="info-content">
+		<table>
+			<tr id="iw-url-row" class="iw_table_row">
+				<td id="iw-icon" class="table-icon"></td>
+				<td id="iw-url"></td>
+			</tr>
+			<tr id="iw-address-row" class="iw_table_row">
+				<td id="att-name">Address:</td>
+				<td id="iw-address"></td>
+			</tr>
+			<tr id="iw-phone-row" class="iw_table_row">
+				<td id="att-name">Telephone:</td>
+				<td id="iw-phone"></td>
+			</tr>
+			<tr id="iw-rating-row" class="iw_table_row">
+				<td id="att-name">Rating:</td>
+				<td id="iw-rating"></td>
+			</tr>
+			<tr id="iw-website-row" class="iw_table_row">
+				<td id="att-name">Website:</td>
+				<td id="iw-wesite"></td>></td>
+			</tr>
+			<tr id="iw-reviews-row" class="iw_table_row">
+				<td id="att-name">Reviews:</td>
+				<td id="iw-reviews"></td>
+			</tr>
+		</table>
+	</div>
+</body>
+</html>
