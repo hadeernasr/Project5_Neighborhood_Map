@@ -1,4 +1,4 @@
-/*  Global Variables to be used both by initAutoComplete and VeiwModel methods.
+/*  Global Variables to be used both by initAutoComplete and ViewModel methods.
  *  On hind sight, should have made marker a property of the place object, so did not 
  *  have to have the index variable
 */
@@ -179,17 +179,17 @@ function initialize(){
 
 /* KO viewModel 
 */
-var VeiwModel = function(){
+var ViewModel = function(){
   koViewModelInstance = this;
-  var slef = this;
-  slef.places=ko.observableArray(places);
-  slef.markers=ko.observableArray(markers);
-  slef.filterList=ko.observableArray();
-  slef.filter=ko.observable("");
-  slef.listViewVisible=ko.observable(true);
+  var self = this;
+  self.places=ko.observableArray(places);
+  self.markers=ko.observableArray(markers);
+  self.filterList=ko.observableArray();
+  self.filter=ko.observable("");
+  self.listViewVisible=ko.observable(true);
 
   //opensMarker when a list view item is clicked
-  slef.openMarker = function(place){
+  self.openMarker = function(place){
     var marker = markers[place.index];
     marker.clicked=true;
     changeColor(marker);
@@ -200,8 +200,20 @@ var VeiwModel = function(){
    *  It is also called when a filter is entered in the text area.
    *  This method calls getFilterList , which creates a List of places matching the filter.
   */
+
+  self.filterMarkers = function(){
+    self.listViewVisible(true);
+    self.filterList.removeAll();
+    self.getFilterList();
+
+  };
+
+  /*  A utility function that returns all places if filter is null
+   *  Returns the list of places that matches the filter.
+   *  Makes use of the ko.utility.arrayFilter method.
+   */
   self.filteredItems = function(){
-    if(self.filter){
+    if(!self.filter){
       console.log("filteredItems in filter not true=" +self.filter);
       return self.places();
     }
@@ -216,7 +228,7 @@ var VeiwModel = function(){
  /*  Makes Marker visible for all places in the input param filterdPlaces.
   */
 
-  self.showMarker = function(filteredPlaces){
+  self.showMarkers = function(filteredPlaces){
     filteredPlaces.forEach(function(filteredPlace){
       markers[filteredPlace.index].setMap(map);
     });
@@ -237,7 +249,7 @@ var VeiwModel = function(){
   /*  Makes all the Markers invisible.
   */
   self.hideAllMarkers = function(){
-    marker,forEach(function(marker){
+    markers.forEach(function(marker){
       marker.setMap(null);
     });
   };
@@ -360,4 +372,4 @@ var getLocationData=function(marker){
 
 };
 
-ko.applyBindings(new VeiwModel());
+ko.applyBindings(new ViewModel());

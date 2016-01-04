@@ -6,13 +6,6 @@
 	<link rel="stylesheet" type="text/css" href="css/style.css">
 	<link rel="stylesheet" href="css/bootstrap.min.css">
 
-	<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAn9gmsnoTBox1vUD9Ds6mc_OMUscKxSMw&libraries=places&callback=initialize"></script>
-	<script src="js/lib/jquery.min.js"></script>
-	<script src="js/lib/knockout-3.2.0.js"></script>
-	<script src="js/script.js"></script>
-
-
-
 </head>
 <body>
 	<div class="container">
@@ -25,7 +18,8 @@
 		<div class="row">
 			<div class="col-xs-6 col-md-6 col-lg-6">
 				<!--search text is bound to the filter in viewModel, on click, the search filter values popuup and a fuzzy search is done on entering text-->
-				<input id="searchBox" placeholder="search" data-bind="textInput:filter, click:filterMarkers, event:{keyup:filterMarkers}">
+				<input id="searchBox" placeholder="search" type="search" 
+				data-bind="textInput:filter, click:filterMarkers, event:{keyup:filterMarkers}">
 			</div>
 		</div>
 
@@ -43,5 +37,10 @@
 			<div id="map" class="col-xs-12 col-md-12 col-lg-12 img-responsive"></div>
 		</div>
 	</div>
+
+	<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAn9gmsnoTBox1vUD9Ds6mc_OMUscKxSMw&libraries=places&callback=initialize"></script>
+	<script src="js/lib/jquery.min.js"></script>
+	<script src="js/lib/knockout-3.2.0.js"></script>
+	<script src="js/script.js"></script>
 </body>
 </html>
