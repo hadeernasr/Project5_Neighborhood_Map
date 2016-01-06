@@ -16,6 +16,7 @@ var places = [{name:"la Madeleine Country French Café",latitude:32.9738945, lon
               {name:"Dimassi's Mediterranean",latitude:32.9842148,longitude:-96.7388313,index:10}];
 var map;
 var infowindow;
+var contentString;
 var initHtml = '<div id="content">'+
                '<div id="siteNotice">'+
                '<h3 id="firstHeading"></h3>'+
@@ -26,16 +27,7 @@ var initHtml = '<div id="content">'+
                '<a id="url" href="" target="_blank"></a>' +
                '</div>';
 
-/* Had defined globally to get infoWindow DOM elements only once as per review feedback.
- * Please see the comments in getLocationData
- *  
-*/
-var $infoWindowContent;
-var $infoWindowAddress;
-var $infoWindowRating;
-var $infoWindowPhone;
-var $infoWindowBodyC;
-var $infoWindowUrl;
+
 /*  Left in place - Please see the comments in getLocationData
 var infoWindowIdDefined=false; */
 
@@ -59,15 +51,93 @@ function changeColor(marker) {
     map.panTo(marker.getPosition());
     marker.setIcon('http://maps.google.com/mapfiles/ms/icons/green-dot.png');
     marker.setAnimation(google.maps.Animation.BOUNCE);
-    setTimeout(function(){marker.setAnimation(null);},2000);
+    setTimeout(function(){marker.setAnimation(null);},3000);
+    setTimeout(function(){marker.setIcon('http://maps.google.com/mapfiles/ms/icons/red-dot.png');},3000);
+
   }
   else{
     marker.setIcon('http://maps.google.com/mapfiles/ms/icons/red-dot.png');
     if(marker.getAnimation()!== null){
       marker.setAnimation(null);
+
     }
   }
 }
+//////////////////////////////////////////////////////////////////////
+/*  getLocationData, takes an input as marker, does a venue search on foursquare API, displays the
+ *  data in the infoWindow on success.
+ *  The url that is displayed is clickable , which opens a separate window/tab to the restaurant in focus.
+ *  On error, displays "Content could not be loaded"
+*/
+var getLocationData = function(marker){
+  
+  var lat= marker.position.lat();
+  var long = marker.position.lng();
+
+  /* client_id and client_secret received on registering at foursquare */
+  var CLIENT_ID = '1UCDCI3H3VERD2IRAYHFV3YBISAYU3LLF1NDIWM5SFOZTAOO';
+  var CLIENT_SECRET = 'L4M0PBEUW4JL4FJH2OGZEC3Q13Q0TDWOFR21MPVSJ3EHUABQ';
+
+  // Using the venue's search api from foursquare.
+  var API_ENDPOINT = 'https://api.foursquare.com/v2/venues/search' +
+    '?client_id=' + CLIENT_ID +
+    '&client_secret=' +CLIENT_SECRET +
+    '&v=20130815' +
+    '&ll=' +lat + ',' + long +
+    '&query=' +'\'' +marker.title + '\'&limit=1';
+
+  $.getJSON(API_ENDPOINT,
+    {format:"json"})
+      .done(function(result) {
+          var venue = result.response.venues[0];
+          console.log("venue=" +JSON.stringify(venue));
+          var venueName = venue.name;
+          var venuePhone = venue.contact.formattedPhone;
+          var venueAddress = venue.location.formattedAddress;
+          var venueUrl=venue.url;
+          console.log("venue.url=" +venueUrl);
+
+                var contact = venue.hasOwnProperty('contact') ? venue.contact : '';
+                if (contact.hasOwnProperty('formattedPhone')) {
+                    var venuePhone=venue.contact.formattedPhone;
+                }
+
+                var location = venue.hasOwnProperty('location') ? venue.location : '';
+                if (location.hasOwnProperty('address')) {
+                    var venueAddress=venue.location.address;
+                }
+
+                var description = venue.hasOwnProperty('description') ? venue.description : '';
+                var venueDescription=description;
+
+                var url = venue.hasOwnProperty('url') ? venue.url : '';
+                var venueUrl=url;
+
+                var venueCanonicalUrl=result.canonicalUrl;
+
+
+                contentString = '<div id="iWindow"><h4>' + venueName + '</h4><p>Information from Foursquare:</p><p>' +
+                        venuePhone + '</p><p>' + venueAddress + '</p><p>' +
+                        venueDescription + '</p><p><a href=' + venueUrl + '>' + venueUrl +
+                        '</a></p><p><a target="_blank" href=' + venueCanonicalUrl+
+                        '>Foursquare Page</a></p><p><a target="_blank" href=https://www.google.com/maps/dir/Current+Location/' +
+                        venue.lat + ',' + venue.lng + '>Directions</a></p></div>';
+                infowindow.setContent(contentString);
+                marker.infoWindowHtml=contentString;
+    }).fail(function(jqxhr, textStatus, error){
+        //on error case
+        console.log("Request Failed: " + textStatus + ' , ' + error);
+        $infoWindowAddress.replaceWith('<h5>Content could not be loaded</h5>');
+    });
+  
+    //click on the url in the infoWindow, opens a new page/tab with restaurant info.
+  $("#url").click(function() {
+    var target=$(this).parent().find("a");
+      window.open(target.attr('href'));
+  }); 
+
+};
+//////////////////////////////////////////////////////////////////////
 
 /*  opens an infoWindow when a marker is clicked ,displays more information about the point.
  *  Initalizes to place name as title and "loading data...." for slower n/w, until the actual API call
@@ -81,11 +151,13 @@ function openInfoWindow(place,marker,infowindow){
   if(typeof marker.infoWindowHtml === "undefined")
   {
     console.log("going to getLocationData for this marker");
-    var htmlString=initHtml;
-    infowindow.setContent(htmlString);
+    var htmlString=contentString;
+    //infowindow.setContent(htmlString);
     map.panTo(marker.getPosition());
     infowindow.open(map,marker);
     getLocationData(marker);
+    console.log(contentString);
+    
   }
   else{
     console.log("getting cached data for marker");
@@ -146,7 +218,7 @@ function initialize(){
           marker.clicked = true;
           changeColor(marker);
           openInfoWindow(place,marker,infowindow);
-        }
+        };
       })(marker,place,infowindow));
 
      /*  Registers eventListener on close of the infoWindow
@@ -205,6 +277,7 @@ var ViewModel = function(){
     self.listViewVisible(true);
     self.filterList.removeAll();
     self.getFilterList();
+
 
   };
 
@@ -282,94 +355,9 @@ var ViewModel = function(){
 
 };//ViewModel end
 
-/*  getLocationData, takes an input as marker, does a venue search on foursquare API, displays the
- *  data in the infoWindow on success.
- *  The url that is displayed is clickable , which opens a separate window/tab to the restaurant in focus.
- *  On error, displays "Content could not be loaded"
-*/
-var getLocationData=function(marker){
-  /*  As per the review feedback I was asked to not  define the infowindow ids over and over again.
-   *  So I went about defining a flag and when its false(initially) to get the DOM Elements.
-   *  On that I observed a behaviour of stale ids.The very first time, I opened an infoWindow, since my
-   *  infoWindowIdDefined == false, I would be gettign the DOM elements and everything is good. But
-   *  on subsequent request to getLocationData, I would have references to old elements and the infoWindow
-   *  On the screen would have prev values or initialized value(if I setContent of the infoWindow to an initHtml)
-   *  I have left the commented code in for you to verify and prove that I need to get the infoWindow elements
-   *  everytime a new Marker is clicked upon. 
-  */
-    //defining infoWindowIds once, based on the first review feedback
-    //if (infoWindowIdDefined === false) {
-    $infoWindowContent = $('#content');
-    $infoWindowAddress=$('#address');
-    $infoWindowRating=$('#rating');
-    $infoWindowPhone=$('#phone');
-    $infoWindowBodyC=$('#bodyContent');
-    $infoWindowUrl=$('#url');
-    //infoWindowIdDefined=true;
-  //} 
 
-  var $infoWindowHeading = $('#firstHeading');
-  $infoWindowHeading.text(marker.title);
 
-  var lat= marker.position.lat();
-  var long = marker.position.lng();
 
-  /* client_id and client_secret received on registering at foursquare */
-  var CLIENT_ID = '1UCDCI3H3VERD2IRAYHFV3YBISAYU3LLF1NDIWM5SFOZTAOO';
-  var CLIENT_SECRET = 'L4M0PBEUW4JL4FJH2OGZEC3Q13Q0TDWOFR21MPVSJ3EHUABQ';
 
-  // Using the venue's search api from foursquare.
-  var API_ENDPOINT = 'https://api.foursquare.com/v2/venues/search' +
-    '?client_id=' + CLIENT_ID +
-    '&client_secret=' +CLIENT_SECRET +
-    '&v=20130815' +
-    '&ll=' +lat + ',' + long +
-    '&query=' +'\'' +marker.title + '\'&limit=1';
-    
-  // Use jQuery to make an AJAX request to Foursquare and update infoWindow values.
-  //Changed from deprecated default success and error (jquery1.4) to done/fail as per review feedback
-  $.getJSON(API_ENDPOINT,
-    {format:"json"})
-      .done(function(result) {
-          var venue = result.response.venues[0];
-          console.log("venue=" +JSON.stringify(venue));
-          var venuePhone = venue.contact.formattedPhone;
-          var venueAddress = venue.location.formattedAddress;
-          var venueUrl=venue.url;
-          console.log("venue.url=" +venueUrl);
-          
-          if (venuePhone)
-            $infoWindowPhone.text('Phone: ' +venuePhone);
-          else
-              $infoWindowPhone.text('Phone number not found');
-
-          if (venueAddress) 
-              $infoWindowAddress.text('Address: ' +venueAddress);
-        else
-              $infoWindowAddress.text('Address not found');
-
-          if (venueUrl) {
-            //console.log( "before,infoWindowUrl=" +$infoWindowUrl.html());
-              $infoWindowUrl.text(venueUrl);
-              $infoWindowUrl.attr('href',venueUrl);
-              //console.log( "after,infoWindowUrl=" +$infoWindowUrl.html());
-          }   
-        else
-              $infoWindowUrl.replaceWith('<h5>URL not found</h5>');
-
-          //cache'ing Marker data, as per review feedback, so as to not retrieve api data for the same marker.
-          marker.infoWindowHtml=$infoWindowContent.html();
-      }).fail(function(jqxhr, textStatus, error){
-        //on error case
-        console.log("Request Failed: " + textStatus + ' , ' + error);
-        $infoWindowAddress.replaceWith('<h5>Content could not be loaded</h5>');
-      });
-    //click on the url in the infoWindow, opens a new page/tab with restaurant info.
-  $("#url").click(function() {
-    var target=$(this).parent().find("a");
-      window.open(target.attr('href'));
-  }); 
-
-};
 
 ko.applyBindings(new ViewModel());
