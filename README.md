@@ -1,5 +1,7 @@
+
 Project5 Neighborhood Mmap
-***************************
+==========================
+
 **To run the project:**
 1. Click on the index.html. This should load the google map, centering Middletown,NJ and brings up the static restaurants in the model with a marker on each one of them.
 2. Clicking on the Marker, should open an infoWindow, with the address and phone number of the restaurant along with the url.
