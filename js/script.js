@@ -119,9 +119,8 @@ var getLocationData = function(marker){
                 contentString = '<div id="iWindow"><h4>' + venueName + '</h4><p>Information from Foursquare:</p><p>' +
                         venuePhone + '</p><p>' + venueAddress + '</p><p>' +
                         venueDescription + '</p><p><a href=' + venueUrl + '>' + venueUrl +
-                        '</a></p><p><a target="_blank" href=' + venueCanonicalUrl+
-                        '>Foursquare Page</a></p><p><a target="_blank" href=https://www.google.com/maps/dir/Current+Location/' +
-                        venue.lat + ',' + venue.lng + '>Directions</a></p></div>';
+                        '</a></p><p><a target="_blank" href=https://www.google.com/maps/dir/Current+Location/' +
+                        venue.location.lat + ',' + venue.location.lng + '>Directions</a></p></div>';
                 infowindow.setContent(contentString);
                 marker.infoWindowHtml=contentString;
     }).fail(function(jqxhr, textStatus, error){
@@ -151,7 +150,7 @@ function openInfoWindow(place,marker,infowindow){
   if(typeof marker.infoWindowHtml === "undefined")
   {
     console.log("going to getLocationData for this marker");
-    var htmlString=contentString;
+    
     //infowindow.setContent(htmlString);
     map.panTo(marker.getPosition());
     infowindow.open(map,marker);
@@ -176,6 +175,7 @@ function initialize(){
     zoom: 13,
     mapTypeId: google.maps.MapTypeId.ROADMAP
   });
+
 
   infowindow = new google.maps.InfoWindow();
 
@@ -205,8 +205,12 @@ function initialize(){
         animation : google.maps.Animation.DROP,
         position : new google.maps.LatLng(place.latitude, place.longitude)
       });
+      //makes the process simpler and more logical via the Map.fitBounds() method
+      bounds.extend(marker.position);
+      map.fitBounds(bounds);
 
       markers.push(marker);
+
 
      /*  Registers Listeners for maker click, calls changeColor and openInfoWindow,
       *  which changes the color of the marker to green,adds animation and opens an InfoWindow
@@ -247,6 +251,7 @@ function initialize(){
     clearMarkers();
     var bounds = new google.maps.LatLngBounds();
     createMarkers(bounds);
+
 }//initialize function end
 
 /* KO viewModel 
