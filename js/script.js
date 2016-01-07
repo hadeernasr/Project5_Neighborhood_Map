@@ -92,7 +92,6 @@ var getLocationData = function(marker){
           var venue = result.response.venues[0];
           console.log("venue=" +JSON.stringify(venue));
           var venueName = venue.name;
-          var venuePhone = venue.contact.formattedPhone;
           var venueAddress = venue.location.formattedAddress;
           var venueUrl=venue.url;
           console.log("venue.url=" +venueUrl);
@@ -111,7 +110,7 @@ var getLocationData = function(marker){
                 var venueDescription=description;
 
                 var url = venue.hasOwnProperty('url') ? venue.url : '';
-                var venueUrl=url;
+                var venueUrl=venue.url;
 
                 var venueCanonicalUrl=result.canonicalUrl;
 
@@ -170,10 +169,25 @@ function openInfoWindow(place,marker,infowindow){
 */
 function initialize(){
   map = new google.maps.Map(document.getElementById('map'), {
-    // center's the map around Middletown,NJ.
+    // center's the map around UTD dallas TX.
     center: {lat:32.9842148, lng:-96.7388313},
     zoom: 13,
-    mapTypeId: google.maps.MapTypeId.ROADMAP
+    mapTypeId: google.maps.MapTypeId.ROADMAP,
+
+    mapTypeControl: true,
+    mapTypeControlOptions: {
+        style: google.maps.MapTypeControlStyle.HORIZONTAL_BAR,
+        position: google.maps.ControlPosition.TOP_CENTER
+    },
+    zoomControl: true,
+    zoomControlOptions: {
+        position: google.maps.ControlPosition.RIGHT_TOP
+    },
+    scaleControl: true,
+    streetViewControl: true,
+    streetViewControlOptions: {
+        position: google.maps.ControlPosition.RIGHT_TOP
+    }
   });
 
 
