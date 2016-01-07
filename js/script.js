@@ -127,7 +127,7 @@ var getLocationData = function(marker){
     }).fail(function(jqxhr, textStatus, error){
         //on error case
         console.log("Request Failed: " + textStatus + ' , ' + error);
-        $infoWindowAddress.replaceWith('<h5>Content could not be loaded</h5>');
+        infowindow.setContent('<h5>Foursquare data is unavailable. Please try refreshing later.</h5>');
     });
   
     //click on the url in the infoWindow, opens a new page/tab with restaurant info.
@@ -310,7 +310,7 @@ var ViewModel = function(){
   self.highlightMarker = function (place){
     var marker = markers[place.index];
     marker.clicked = true;
-    changeColor(marker);
+    //changeColor(marker);
   };
 
   self.disableHighlighMarker = function(place){
